@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion de Notes - Prof</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>📊 Gestion de Notes</h1>
+    <p>Ajoutez vos élèves et leurs notes, la moyenne se calcule automatiquement.</p>
+  </header>
+  <main>
+    <section class="controls">
+      <input id="studentName" type="text" placeholder="Nom de l'élève">
+      <button id="addStudent">Ajouter élève</button>
+      <button id="exportCSV">Exporter CSV</button>
+    </section>
+    <table id="notesTable">
+      <thead>
+        <tr>
+          <th>Élève</th>
+          <th>Notes (séparées par ,)</th>
+          <th>Moyenne</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div id="classAverage"></div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
