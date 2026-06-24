@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scanner de Code-Barres</title>
+<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --accent: #00ff88;
+    --accent2: #ff3c78;
+    --accent3: #7c6af7;
+    --text: #e8e8f0;
+    --muted: #55556a;
+    --border: #1e1e2e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 600px;
+    padding: 2rem 1.5rem 4rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  header { text-align: center; margin-bottom: 2.5rem; }
+
+  .logo {
+    font-size: 0.7rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+  }
+
+  h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* Scanner */
+  .scanner-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+
+  #camera-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #05050a;
+    display: none;
+  }
+
+  #camera-container.active { display: block; }
+
+  #cam-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #cam-canvas { display: none; }
+
+  .scan-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scan-frame {
+    width: 70%;
+    aspect-ratio: 3/1;
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    box-shadow: 0 0 0 2000px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .scan-line {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scanAnim 2s ease-in-out infinite;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  @keyframes scanAnim { 0%, 100% { top: 0% } 50% { top: 100% } }
+
+  .corner { position: absolute; width: 14px; height: 14px; border-color: var(--accent); border-style: solid; }
+  .corner.tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-radius: 3px 0 0 0; }
+  .corner.tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; border-radius: 0 3px 0 0; }
+  .corner.bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; border-radius: 0 0 0 3px; }
+  .corner.br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 3px 0; }
+
+  .scanner-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .scanner-icon {
+    width: 72px; height: 72px;
+    border: 3px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scanner-icon svg { opacity: 0.35; }
+
+  .scanner-placeholder p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    line-height: 1.7;
+  }
+
+  .manual-section {
+    padding: 1.1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .manual-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  #barcode-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  #barcode-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,255,136,0.1); }
+  #barcode-input::placeholder { color: var(--muted); }
+
+  /* Buttons */
+  .btn-group { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+
+  .btn {
+    flex: 1;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary { background: var(--accent); color: #0a0a0f; }
+  .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--muted); background: var(--surface); }
+
+  /* Status */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    min-height: 42px;
+  }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+
+  .status-dot.green { background: var(--accent); box-shadow: 0 0 6px var(--accent); animation: pulse 1.5s infinite; }
+  .status-dot.yellow { background: #ffd60a; box-shadow: 0 0 6px #ffd60a; }
+  .status-dot.red { background: var(--accent2); }
+
+  @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.4 } }
+
+  /* Source badge */
+  .source-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    margin-top: 0.4rem;
+  }
+
+  .source-food    { background: rgba(0,255,136,0.1);   color: var(--accent);  border: 1px solid rgba(0,255,136,0.2); }
+  .source-beauty  { background: rgba(255,60,120,0.1);  color: var(--accent2); border: 1px solid rgba(255,60,120,0.2); }
+  .source-product { background: rgba(124,106,247,0.1); color: var(--accent3); border: 1px solid rgba(124,106,247,0.2); }
+  .source-upc     { background: rgba(255,214,10,0.1);  color: #ffd60a;        border: 1px solid rgba(255,214,10,0.2); }
+  .source-book    { background: rgba(255,165,0,0.1);   color: #ffa500;        border: 1px solid rgba(255,165,0,0.2); }
+
+  /* Product card */
+  #product-result { display: none; }
+  #product-result.visible { display: block; }
+
+  .product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+
+  .product-header {
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .product-image {
+    width: 80px; height: 80px;
+    border-radius: 10px;
+    object-fit: contain;
+    background: #0a0a0f;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .product-image-placeholder {
+    width: 80px; height: 80px;
+    border-radius: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 2rem;
+  }
+
+  .product-meta { flex: 1; min-width: 0; }
+  .product-brand { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.35rem; }
+  .product-name { font-size: 1.1rem; font-weight: 700; line-height: 1.25; margin-bottom: 0.2rem; }
+  .product-qty { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--muted); }
+  .product-body { padding: 1.25rem 1.5rem; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+
+  .info-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+  }
+
+  .info-item.full { grid-column: 1 / -1; }
+
+  .info-item-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.25rem;
+  }
+
+  .info-item-value { font-size: 0.9rem; line-height: 1.4; }
+
+  /* Nutriscore */
+  .nutriscore { display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+  .nutriscore-label { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .nutriscore-badge { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: white; }
+  .ns-a { background: #038141; } .ns-b { background: #85bb2f; } .ns-c { background: #fecb02; color: #333; } .ns-d { background: #ee8100; } .ns-e { background: #e63312; }
+
+  /* Prices */
+  .price-section {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .price-section-title { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.75rem; }
+  .price-count { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); background: var(--surface); padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid var(--border); }
+  .price-summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; }
+  .price-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.5rem; text-align: center; }
+  .price-stat-label { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.2rem; }
+  .price-stat-value { font-weight: 800; font-size: 1rem; }
+  .price-stat-value.green { color: var(--accent); }
+  .price-stat-value.red { color: var(--accent2); }
+  .price-list { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.6rem; }
+  .price-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.6rem; background: var(--surface); border-radius: 6px; font-size: 0.8rem; }
+  .price-store { flex: 1; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .price-date { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); flex-shrink: 0; }
+  .price-amount { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 0.85rem; color: var(--accent); flex-shrink: 0; }
+  .price-source { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted); text-align: right; }
+  .no-price-text { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
+
+  /* Loading / Error */
+  .loading-card { display: flex; align-items: center; gap: 1rem; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+  .spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg) } }
+  .loading-text { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--muted); }
+
+  .error-card { background: rgba(255,60,120,0.08); border: 1px solid rgba(255,60,120,0.25); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem; animation: slideUp 0.3s ease; }
+  .error-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .error-text h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--accent2); }
+  .error-text p { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
+
+  .barcode-display { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--muted); padding: 0.5rem 0.75rem; background: var(--bg); border-radius: 6px; display: inline-block; letter-spacing: 0.1em; }
+
+  /* History */
+  .history-title { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; margin: 2rem 0 0.75rem; }
+  .history-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .history-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: border-color 0.15s; }
+  .history-item:hover { border-color: var(--muted); }
+  .history-item-name { flex: 1; font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .history-item-code { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); flex-shrink: 0; }
+
+  @media (max-width: 420px) {
+    h1 { font-size: 1.8rem; }
+    .info-grid { grid-template-columns: 1fr; }
+    .info-item.full { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">◈ Scan & Identify</div>
+    <h1>Code-Barres<br><span>Scanner</span></h1>
+    <p class="subtitle">// Alimentaire · Beauté · Objets · Tout produit</p>
+  </header>
+
+  <div class="scanner-wrap">
+    <div id="camera-container">
+      <video id="cam-video" autoplay playsinline muted></video>
+      <canvas id="cam-canvas"></canvas>
+      <div class="scan-overlay">
+        <div class="scan-frame" id="scan-frame">
+          <div class="scan-line"></div>
+          <div class="corner tl"></div>
+          <div class="corner tr"></div>
+          <div class="corner bl"></div>
+          <div class="corner br"></div>
+        </div>
+      </div>
+    </div>
+    <div class="scanner-placeholder" id="scanner-placeholder">
+      <div class="scanner-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 9V6a1 1 0 0 1 1-1h3M15 5h3a1 1 0 0 1 1 1v3M21 15v3a1 1 0 0 1-1 1h-3M9 19H6a1 1 0 0 1-1-1v-3"/>
+          <line x1="7" y1="12" x2="7" y2="12.01" stroke-width="3" stroke-linecap="round"/>
+          <line x1="10" y1="9" x2="10" y2="15" stroke-width="2" stroke-linecap="round"/>
+          <line x1="13" y1="9" x2="13" y2="15" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="12" x2="16" y2="12.01" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p>Cliquez sur <strong style="color:var(--text)">Activer la Caméra</strong><br>pour scanner un code-barres</p>
+    </div>
+    <div class="manual-section">
+      <span class="manual-label">Manuel</span>
+      <input type="text" id="barcode-input" placeholder="Ex: 3017620422003" maxlength="20" inputmode="numeric" />
+      <button class="btn btn-primary" onclick="lookupBarcode(document.getElementById('barcode-input').value)" style="flex:0;padding:0.6rem 1.1rem;border-radius:8px;">→</button>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" id="camera-btn" onclick="toggleCamera()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M20.94 11A8.994 8.994 0 0 0 12 3a8.994 8.994 0 0 0-8.94 8m0 2A8.994 8.994 0 0 0 12 21a8.994 8.994 0 0 0 8.94-8"/>
+      </svg>
+      Activer la Caméra
+    </button>
+    <button class="btn btn-secondary" onclick="clearResult()" style="flex:0;padding:0.85rem 1rem;">✕</button>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">En attente...</span>
+  </div>
+
+  <div id="product-result"></div>
+
+  <div id="history-section" style="display:none">
+    <div class="history-title">// Historique récent</div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+
+</div>
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let scanning = false;
+let lastCode = '';
+let scanHistory = [];
+let zxingReader = null;
+let nativeDetector = null;
+let nativeInterval = null;
+let currentStream = null;
+
+// ─── UI ───────────────────────────────────────────────────────────────────────
+function setStatus(msg, type = 'idle') {
+  document.getElementById('status-text').textContent = msg;
+  const dot = document.getElementById('status-dot');
+  dot.className = 'status-dot';
+  if (type === 'active') dot.classList.add('green');
+  else if (type === 'loading') dot.classList.add('yellow');
+  else if (type === 'error') dot.classList.add('red');
+}
+
+function flashFrame() {
+  const f = document.getElementById('scan-frame');
+  if (!f) return;
+  f.style.borderColor = '#fff';
+  f.style.boxShadow = '0 0 0 2000px rgba(255,255,255,0.08)';
+  setTimeout(() => {
+    f.style.borderColor = 'var(--accent)';
+    f.style.boxShadow = '0 0 0 2000px rgba(0,0,0,0.5)';
+  }, 200);
+}
+
+// ─── Camera ───────────────────────────────────────────────────────────────────
+function toggleCamera() { scanning ? stopCamera() : startCamera(); }
+
+async function startCamera() {
+  const btn = document.getElementById('camera-btn');
+  document.getElementById('camera-container').classList.add('active');
+  document.getElementById('scanner-placeholder').style.display = 'none';
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Arrêter`;
+  btn.style.background = 'var(--accent2)';
+  scanning = true;
+  setStatus('Démarrage de la caméra...', 'loading');
+
+  try {
+    currentStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    const video = document.getElementById('cam-video');
+    video.srcObject = currentStream;
+    await video.play();
+    setStatus('Caméra active – pointez vers un code-barres', 'active');
+
+    if ('BarcodeDetector' in window) {
+      const formats = await BarcodeDetector.getSupportedFormats();
+      nativeDetector = new BarcodeDetector({ formats });
+      startNativeDetection(video);
+    } else {
+      startZXing(video);
+    }
+  } catch (err) {
+    let msg = 'Erreur caméra';
+    if (err.name === 'NotAllowedError') msg = 'Permission refusée – autorisez la caméra dans votre navigateur';
+    else if (err.name === 'NotFoundError') msg = 'Aucune caméra détectée';
+    else if (err.name === 'NotReadableError') msg = 'Caméra déjà utilisée par une autre application';
+    else msg = err.message;
+    setStatus(msg, 'error');
+    stopCamera();
+  }
+}
+
+function startNativeDetection(video) {
+  const canvas = document.getElementById('cam-canvas');
+  const ctx = canvas.getContext('2d');
+  nativeInterval = setInterval(async () => {
+    if (!scanning || video.readyState < 2) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+    try {
+      const barcodes = await nativeDetector.detect(canvas);
+      if (barcodes.length > 0) {
+        const code = barcodes[0].rawValue;
+        if (code && code !== lastCode) { lastCode = code; flashFrame(); lookupBarcode(code); }
+      }
+    } catch(e) {}
+  }, 300);
+}
+
+function startZXing(video) {
+  try {
+    const hints = new Map();
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+      ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
+      ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E,
+      ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
+      ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.DATA_MATRIX,
+    ]);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+    zxingReader = new ZXing.BrowserMultiFormatReader(hints, 500);
+    zxingReader.decodeFromVideoElement(video, (result) => {
+      if (result) {
+        const code = result.getText();
+        if (code && code !== lastCode) { lastCode = code; flashFrame(); lookupBarcode(code); }
+      }
+    });
+  } catch(e) { setStatus('Erreur moteur scan: ' + e.message, 'error'); }
+}
+
+function stopCamera() {
+  const video = document.getElementById('cam-video');
+  if (zxingReader) { try { zxingReader.reset(); } catch(e){} zxingReader = null; }
+  if (nativeInterval) { clearInterval(nativeInterval); nativeInterval = null; }
+  if (currentStream) { currentStream.getTracks().forEach(t => t.stop()); currentStream = null; }
+  video.srcObject = null;
+  document.getElementById('camera-container').classList.remove('active');
+  document.getElementById('scanner-placeholder').style.display = 'flex';
+  const btn = document.getElementById('camera-btn');
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M20.94 11A8.994 8.994 0 0 0 12 3a8.994 8.994 0 0 0-8.94 8m0 2A8.994 8.994 0 0 0 12 21a8.994 8.994 0 0 0 8.94-8"/></svg> Activer la Caméra`;
+  btn.style.background = 'var(--accent)';
+  scanning = false; lastCode = '';
+  setStatus('Caméra arrêtée', 'idle');
+}
+
+// ─── Lookup ───────────────────────────────────────────────────────────────────
+async function lookupBarcode(code) {
+  code = code.trim();
+  if (!code || code.length < 4) { setStatus('Code invalide', 'error'); return; }
+
+  setStatus(`Recherche: ${code}`, 'loading');
+  const resultDiv = document.getElementById('product-result');
+  resultDiv.className = 'visible';
+  resultDiv.innerHTML = `<div class="loading-card"><div class="spinner"></div><div class="loading-text">Identification du produit…</div></div>`;
+  document.getElementById('barcode-input').value = '';
+
+  const [foodRes, beautyRes, productRes, upcRes, priceRes, bookRes] = await Promise.allSettled([
+    fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json`).then(r => r.json()),
+    fetch(`https://world.openbeautyfacts.org/api/v2/product/${code}.json`).then(r => r.json()),
+    fetch(`https://world.openproductsfacts.org/api/v2/product/${code}.json`).then(r => r.json()),
+    fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`).then(r => r.json()),
+    fetch(`https://prices.openfoodfacts.org/api/v1/prices?product_code=${code}&page_size=10&order_by=-date`).then(r => r.json()),
+    fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${code}&format=json&jscmd=data`).then(r => r.json()),
+  ]);
+
+  const food    = foodRes.status === 'fulfilled' ? foodRes.value : null;
+  const beauty  = beautyRes.status === 'fulfilled' ? beautyRes.value : null;
+  const prod    = productRes.status === 'fulfilled' ? productRes.value : null;
+  const upc     = upcRes.status === 'fulfilled' ? upcRes.value : null;
+  const prices  = priceRes.status === 'fulfilled' ? priceRes.value : null;
+  const bookRaw = bookRes.status === 'fulfilled' ? bookRes.value : null;
+  const bookData = bookRaw ? bookRaw[`ISBN:${code}`] : null;
+
+  let product = null, sourceLabel = '', sourceClass = '', sourceEmoji = '';
+
+  if (bookData?.title) {
+    product = normalizeBook(bookData); sourceLabel = 'Open Library'; sourceClass = 'source-book'; sourceEmoji = '📚';
+  } else if (food?.status === 1 && food.product?.product_name) {
+    product = normalizeOFF(food.product); sourceLabel = 'Open Food Facts'; sourceClass = 'source-food'; sourceEmoji = '🥗';
+  } else if (beauty?.status === 1 && beauty.product?.product_name) {
+    product = normalizeOFF(beauty.product); sourceLabel = 'Open Beauty Facts'; sourceClass = 'source-beauty'; sourceEmoji = '💄';
+  } else if (prod?.status === 1 && prod.product?.product_name) {
+    product = normalizeOFF(prod.product); sourceLabel = 'Open Products Facts'; sourceClass = 'source-product'; sourceEmoji = '📦';
+  } else if (upc?.code === 'OK' && upc.items?.length > 0) {
+    product = normalizeUPC(upc.items[0]); sourceLabel = 'UPCitemdb'; sourceClass = 'source-upc'; sourceEmoji = '🏷️';
+  }
+
+  if (!product) {
+    resultDiv.innerHTML = `
+      <div class="error-card">
+        <div class="error-icon">⊘</div>
+        <div class="error-text">
+          <h3>Produit introuvable</h3>
+          <p>Code: ${code}<br>Non référencé dans nos bases de données.<br>Vérifiez le code ou essayez la saisie manuelle.</p>
+        </div>
+      </div>`;
+    setStatus('Produit non trouvé', 'error');
+    lastCode = ''; return;
+  }
+
+  // Prices
+  let priceHTML = '';
+  const validPrices = (prices?.items || []).filter(p => p.price && p.currency);
+  if (validPrices.length > 0) {
+    const amounts = validPrices.map(p => p.price);
+    const minP = Math.min(...amounts), maxP = Math.max(...amounts);
+    const avgP = amounts.reduce((a,b) => a+b,0) / amounts.length;
+    const cur = validPrices[0].currency;
+    const fmt = n => n.toFixed(2).replace('.',',') + ' ' + cur;
+    const rows = validPrices.slice(0,4).map(pr => {
+      const store = pr.location?.osm_name || pr.location?.name || 'Magasin inconnu';
+      const date = pr.date ? new Date(pr.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '';
+      return `<div class="price-row"><div class="price-store">${store}</div><div class="price-date">${date}</div><div class="price-amount">${pr.price.toFixed(2).replace('.',',')} ${pr.currency}</div></div>`;
+    }).join('');
+    priceHTML = `<div class="price-section">
+      <div class="price-section-title"><span>💰 Prix observés</span><span class="price-count">${validPrices.length} relevé${validPrices.length>1?'s':''}</span></div>
+      <div class="price-summary">
+        <div class="price-stat"><div class="price-stat-label">Min</div><div class="price-stat-value green">${fmt(minP)}</div></div>
+        <div class="price-stat"><div class="price-stat-label">Moy.</div><div class="price-stat-value">${fmt(avgP)}</div></div>
+        <div class="price-stat"><div class="price-stat-label">Max</div><div class="price-stat-value red">${fmt(maxP)}</div></div>
+      </div>
+      <div class="price-list">${rows}</div>
+      <div class="price-source">Source : Open Prices (données participatives)</div>
+    </div>`;
+  } else {
+    priceHTML = `<div class="price-section">
+      <div class="price-section-title"><span>💰 Prix</span></div>
+      <p class="no-price-text">Aucun prix renseigné.<br><a href="https://prices.openfoodfacts.org" target="_blank" style="color:var(--accent)">Contribuer sur Open Prices →</a></p>
+    </div>`;
+  }
+
+  // Nutriscore
+  let nsHTML = '';
+  if (product.nutriscore) {
+    const ns = product.nutriscore.toUpperCase();
+    nsHTML = `<div class="nutriscore"><span class="nutriscore-label">Nutri-Score</span><div class="nutriscore-badge ns-${ns.toLowerCase()}">${ns}</div></div>`;
+  }
+
+  // Info grid
+  let infoHTML = '';
+  if (product.fields.length > 0) {
+    infoHTML = '<div class="info-grid">' + product.fields.map(f =>
+      `<div class="info-item${f.full?' full':''}">
+        <div class="info-item-label">${f.label}</div>
+        <div class="info-item-value" style="font-weight:${f.bold?700:400}">${f.value}</div>
+      </div>`).join('') + '</div>';
+  }
+
+  resultDiv.innerHTML = `
+    <div class="product-card">
+      <div class="product-header">
+        ${product.image
+          ? `<img src="${product.image}" alt="" class="product-image" onerror="this.outerHTML='<div class=\\'product-image-placeholder\\'>${sourceEmoji}</div>'">`
+          : `<div class="product-image-placeholder">${sourceEmoji}</div>`}
+        <div class="product-meta">
+          ${product.brand ? `<div class="product-brand">${product.brand}</div>` : ''}
+          <div class="product-name">${product.name}</div>
+          ${product.qty ? `<div class="product-qty">${product.qty}</div>` : ''}
+          <span class="source-badge ${sourceClass}">${sourceEmoji} ${sourceLabel}</span>
+        </div>
+      </div>
+      <div class="product-body">
+        ${priceHTML}
+        ${nsHTML}
+        ${infoHTML}
+        <div class="barcode-display">◈ ${code}</div>
+      </div>
+    </div>`;
+
+  setStatus(`✓ Identifié via ${sourceLabel}`, 'active');
+  addHistory(code, product.name, product.brand, sourceEmoji);
+  lastCode = '';
+}
+
+// ─── Normalizers ──────────────────────────────────────────────────────────────
+function normalizeOFF(p) {
+  const fields = [];
+  const energy   = p.nutriments?.['energy-kcal_100g'];
+  const fat      = p.nutriments?.fat_100g;
+  const sugars   = p.nutriments?.sugars_100g;
+  const proteins = p.nutriments?.proteins_100g;
+  const salt     = p.nutriments?.salt_100g;
+  if (energy   !== undefined) fields.push({ label: 'Énergie /100g',   value: Math.round(energy) + ' kcal', bold: true });
+  if (proteins !== undefined) fields.push({ label: 'Protéines /100g', value: proteins + 'g', bold: true });
+  if (fat      !== undefined) fields.push({ label: 'Lipides /100g',   value: fat + 'g', bold: true });
+  if (sugars   !== undefined) fields.push({ label: 'Sucres /100g',    value: sugars + 'g', bold: true });
+  if (salt     !== undefined) fields.push({ label: 'Sel /100g',       value: salt + 'g', bold: true });
+  const ingredients = p.ingredients_text_fr || p.ingredients_text || '';
+  if (ingredients) fields.push({ label: 'Ingrédients', value: ingredients.slice(0,200) + (ingredients.length>200?'…':''), bold: false, full: true });
+  const cat = p.categories_tags?.[0]?.replace(/^(en:|fr:)/,'') || '';
+  if (cat) fields.push({ label: 'Catégorie', value: cat, bold: false });
+  const country = p.countries_tags?.[0]?.replace(/^(en:|fr:)/,'') || '';
+  if (country) fields.push({ label: 'Origine', value: country, bold: false });
+  return {
+    name: p.product_name || p.product_name_fr || 'Nom inconnu',
+    brand: p.brands || '',
+    qty: p.quantity || '',
+    image: p.image_front_small_url || p.image_url || '',
+    nutriscore: p.nutriscore_grade || '',
+    fields,
+  };
+}
+
+function normalizeUPC(item) {
+  const fields = [];
+  if (item.category)    fields.push({ label: 'Catégorie',   value: item.category, bold: false });
+  if (item.description) fields.push({ label: 'Description', value: item.description.slice(0,200), bold: false, full: true });
+  if (item.color)       fields.push({ label: 'Couleur',     value: item.color, bold: false });
+  if (item.size)        fields.push({ label: 'Taille',      value: item.size, bold: false });
+  if (item.weight)      fields.push({ label: 'Poids',       value: item.weight, bold: false });
+  if (item.dimension)   fields.push({ label: 'Dimensions',  value: item.dimension, bold: false });
+  if (item.lowest_recorded_price)  fields.push({ label: 'Prix bas (USD)',  value: item.lowest_recorded_price + ' $', bold: true });
+  if (item.highest_recorded_price) fields.push({ label: 'Prix haut (USD)', value: item.highest_recorded_price + ' $', bold: true });
+  return {
+    name: item.title || 'Produit inconnu',
+    brand: item.brand || '',
+    qty: item.model || '',
+    image: item.images?.[0] || '',
+    nutriscore: '',
+    fields,
+  };
+}
+
+function normalizeBook(b) {
+  const fields = [];
+  const authors = (b.authors || []).map(a => a.name).join(', ');
+  if (authors)      fields.push({ label: 'Auteur(s)',      value: authors, bold: true });
+  const publishers = (b.publishers || []).map(p => p.name).join(', ');
+  if (publishers)   fields.push({ label: 'Éditeur',        value: publishers, bold: false });
+  if (b.publish_date) fields.push({ label: 'Publication',  value: b.publish_date, bold: false });
+  if (b.number_of_pages) fields.push({ label: 'Pages',     value: b.number_of_pages + ' pages', bold: false });
+  const subjects = (b.subjects || []).slice(0, 3).map(s => s.name || s).join(', ');
+  if (subjects)     fields.push({ label: 'Sujets',         value: subjects, bold: false, full: true });
+  const notes = b.notes?.value || b.notes || '';
+  if (notes && typeof notes === 'string') fields.push({ label: 'Notes', value: notes.slice(0, 200), bold: false, full: true });
+
+  const cover = b.cover?.medium || b.cover?.small || '';
+  return {
+    name: b.title || 'Titre inconnu',
+    brand: authors,
+    qty: b.publish_date || '',
+    image: cover,
+    nutriscore: '',
+    fields,
+  };
+}
+
+// ─── History ──────────────────────────────────────────────────────────────────
+function clearResult() {
+  document.getElementById('product-result').className = '';
+  document.getElementById('product-result').innerHTML = '';
+  document.getElementById('barcode-input').value = '';
+  lastCode = '';
+  setStatus('En attente...', 'idle');
+}
+
+function addHistory(code, name, brand, emoji) {
+  scanHistory.unshift({ code, name, brand, emoji });
+  if (scanHistory.length > 6) scanHistory.pop();
+  const section = document.getElementById('history-section');
+  const list = document.getElementById('history-list');
+  section.style.display = 'block';
+  list.innerHTML = scanHistory.map(h => `
+    <div class="history-item" onclick="lookupBarcode('${h.code}')">
+      <div style="font-size:1.1rem;flex-shrink:0">${h.emoji||'◈'}</div>
+      <div class="history-item-name">${h.name}${h.brand?' — '+h.brand:''}</div>
+      <div class="history-item-code">${h.code}</div>
+    </div>`).join('');
+}
+
+document.getElementById('barcode-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') lookupBarcode(e.target.value);
+});
+</script>
+</body>
+</html>
