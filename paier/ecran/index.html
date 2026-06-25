@@ -2,89 +2,45 @@
     body {
         background-color: beige;
     }
-    .btn1 {
+    .btn1{
     display: inline-block;
-    padding: 18px 40px;
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    padding: 18px 35px;
+    margin: 20px 0 30px 0;
+
+    background: linear-gradient(135deg,#2563eb,#7c3aed);
     color: white;
-    font-size: 28px;
+
+    font-size: 2rem;
     font-weight: bold;
-    text-decoration: none;
-    border: none;
+
     border-radius: 20px;
-    cursor: pointer;
-
-    box-shadow:
-        0 10px 25px rgba(37, 99, 235, 0.35),
-        0 0 20px rgba(124, 58, 237, 0.25);
-
-    transition: all 0.3s ease;
-}
-
-.btn1:hover {
-    transform: translateY(-5px) scale(1.03);
-
-    box-shadow:
-        0 15px 35px rgba(37, 99, 235, 0.45),
-        0 0 30px rgba(124, 58, 237, 0.35);
-}
-
-.btn1:active {
-    transform: translateY(0);
-}
-
-.btn1 span {
-    display: block;
-}
-
-.btn1 .titre {
-    font-size: 42px;
-    margin-bottom: 12px;
-}
-
-.btn1 .description {
-    font-size: 22px;
-    opacity: 0.95;
-}
-
-.btn1 .prix {
-    display: inline-block;
-    margin-top: 15px;
-    padding: 8px 18px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 999px;
-    font-size: 18px;
-}
-
-.btn2 {
-    display: inline-block;
-    padding: 12px 28px;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    color: #fff;
-    font-size: 16px;
-    font-weight: 600;
-    text-decoration: none;
     border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+
+    box-shadow: 0 10px 25px rgba(0,0,0,.15);
 }
 
-.btn2:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+.btn2{
+    display: inline-block;
+    padding: 12px 25px;
+    margin-top: 15px;
+
+    background: white;
+    color: #2563eb;
+
+    font-size: 1.4rem;
+    font-weight: bold;
+
+    border-radius: 50px;
+    border: 2px solid #2563eb;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,.08);
 }
 
-.btn2:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
-}
-
-.btn2:focus {
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
+.texte-produit{
+    max-width: 700px;
+    margin: 30px 0;
+    font-size: 1.5rem;
+    line-height: 1.8;
 }
 </style>
 <h1 class="btn1">Regarde !</h1>
