@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Clicker PRO</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="login">
+    <h1>💰 Clicker PRO</h1>
+    <input id="name" placeholder="Ton pseudo">
+    <button onclick="startGame()">Jouer</button>
+</div>
+
+<div id="game" style="display:none">
+
+    <h2>👤 <span id="playerName"></span></h2>
+
+    <h2>💰 Argent : <span id="money">0</span></h2>
+
+    <h3>🏆 Prestige : <span id="prestige">0</span></h3>
+
+    <button id="clickBtn">💸 CLIQUE</button>
+
+    <p id="event"></p>
+
+    <hr>
+
+    <h2>🛒 SHOP ÉNORME</h2>
+    <div id="shop"></div>
+
+    <hr>
+
+    <h2>🏅 CLASSEMENT</h2>
+    <div id="leaderboard"></div>
+
+    <button onclick="prestige()">🔁 PRESTIGE RESET</button>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>

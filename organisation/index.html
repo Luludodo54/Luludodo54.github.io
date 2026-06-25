@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organisation de Classe</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>👩‍🏫 Organisation de Classe</h1>
+    <p>Ajoutez vos élèves, tirez au sort ou créez des groupes.</p>
+  </header>
+  <main>
+    <textarea id="studentList" placeholder="Un élève par ligne"></textarea><br>
+    <button id="saveList">💾 Sauvegarder</button>
+    <button id="pickRandom">🎲 Tirer au sort</button>
+    <input id="groupSize" type="number" placeholder="Taille groupe" min="2" style="width:100px">
+    <button id="makeGroups">👥 Créer groupes</button>
+    <h2>Résultat :</h2>
+    <div id="result"></div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

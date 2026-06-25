@@ -1,0 +1,31 @@
+body {
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+    text-align: center;
+}
+
+button {
+    padding: 10px;
+    margin: 5px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#clickBtn {
+    background: #22c55e;
+    font-size: 20px;
+}
+
+.shop-item {
+    background: #1e293b;
+    margin: 10px auto;
+    width: 300px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.event {
+    color: yellow;
+}
