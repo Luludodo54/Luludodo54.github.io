@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion de Médiathèque</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Gestion de Médiathèque</h1>
+            <p class="subtitle">Gérez votre collection de livres, films et magazines</p>
+        </header>
+
+        <main>
+            <!-- Section Ajouter un média -->
+            <section class="add-media-section">
+                <h2>Ajouter un nouveau média</h2>
+                <form id="mediaForm">
+                    <div class="form-group">
+                        <label for="titre">Titre :</label>
+                        <input type="text" id="titre" placeholder="Titre du média" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="auteur">Auteur/Artiste :</label>
+                            <input type="text" id="auteur" placeholder="Nom de l'auteur">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="type">Type :</label>
+                            <select id="type" required>
+                                <option value="">Sélectionner un type</option>
+                                <option value="livre">Livre</option>
+                                <option value="dvd">DVD/Film</option>
+                                <option value="magazine">Magazine</option>
+                                <option value="musique">Musique</option>
+                                <option value="autre">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="annee">Année :</label>
+                            <input type="number" id="annee" placeholder="2024" min="1900">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="quantite">Quantité :</label>
+                            <input type="number" id="quantite" value="1" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description :</label>
+                        <textarea id="description" placeholder="Description du média..." rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">➕ Ajouter le média</button>
+                </form>
+            </section>
+
+            <!-- Section Filtres -->
+            <section class="filters-section">
+                <h2>Filtres</h2>
+                <div class="filter-group">
+                    <input type="text" id="searchInput" class="search-box" placeholder="🔍 Rechercher un titre ou un auteur...">
+                    <select id="typeFilter" class="filter-select">
+                        <option value="">Tous les types</option>
+                        <option value="livre">Livre</option>
+                        <option value="dvd">DVD/Film</option>
+                        <option value="magazine">Magazine</option>
+                        <option value="musique">Musique</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">Tous les statuts</option>
+                        <option value="disponible">Disponible</option>
+                        <option value="emprunte">Emprunté</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Section Statistiques -->
+            <section class="stats-section">
+                <div class="stat-card">
+                    <h3>Total</h3>
+                    <p class="stat-number" id="totalMedia">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Disponibles</h3>
+                    <p class="stat-number" id="availableMedia">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Empruntés</h3>
+                    <p class="stat-number" id="borrowedMedia">0</p>
+                </div>
+            </section>
+
+            <!-- Section Liste des médias -->
+            <section class="media-list-section">
+                <h2>Collection des médias</h2>
+                <div class="media-controls">
+                    <button id="sortByTitle" class="btn btn-secondary">Trier par titre</button>
+                    <button id="sortByType" class="btn btn-secondary">Trier par type</button>
+                </div>
+                <div id="mediaList" class="media-list">
+                    <p class="empty-message">Aucun média dans la médiathèque. Ajoutez-en un pour commencer!</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Gestion de Médiathèque - Créé avec ❤️</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
