@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Météo</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#4facfe,#00f2fe);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    width:350px;
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 10px 25px rgba(0,0,0,.2);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.search{
+    display:flex;
+    gap:10px;
+}
+
+input{
+    flex:1;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #ccc;
+}
+
+button{
+    padding:10px 15px;
+    border:none;
+    background:#2196f3;
+    color:white;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1976d2;
+}
+
+.weather{
+    margin-top:25px;
+    text-align:center;
+}
+
+.temp{
+    font-size:50px;
+    font-weight:bold;
+}
+
+.info{
+    margin-top:15px;
+    font-size:18px;
+}
+
+.icon{
+    font-size:70px;
+    margin:10px 0;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>🌤️ Météo</h1>
+
+<div class="search">
+<input type="text" id="city" placeholder="Ville">
+<button onclick="getWeather()">Rechercher</button>
+</div>
+
+<div class="weather" id="weather"></div>
+
+</div>
+
+<script>
+
+async function getWeather(){
+
+    const city=document.getElementById("city").value;
+
+    if(city===""){
+        alert("Entrez une ville.");
+        return;
+    }
+
+    // Recherche des coordonnées
+    const geo=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=fr&format=json`);
+    const geoData=await geo.json();
+
+    if(!geoData.results){
+        document.getElementById("weather").innerHTML="<p>Ville introuvable.</p>";
+        return;
+    }
+
+    const latitude=geoData.results[0].latitude;
+    const longitude=geoData.results[0].longitude;
+    const ville=geoData.results[0].name;
+    const pays=geoData.results[0].country;
+
+    // Météo actuelle
+    const weather=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code`);
+
+    const data=await weather.json();
+
+    const current=data.current;
+
+    let icon="☀️";
+
+    switch(current.weather_code){
+
+        case 0:
+            icon="☀️";
+            break;
+
+        case 1:
+        case 2:
+        case 3:
+            icon="🌤️";
+            break;
+
+        case 45:
+        case 48:
+            icon="🌫️";
+            break;
+
+        case 51:
+        case 53:
+        case 55:
+        case 61:
+        case 63:
+        case 65:
+            icon="🌧️";
+            break;
+
+        case 71:
+        case 73:
+        case 75:
+            icon="❄️";
+            break;
+
+        case 95:
+            icon="⛈️";
+            break;
+
+        default:
+            icon="🌥️";
+    }
+
+    document.getElementById("weather").innerHTML=`
+
+        <div class="icon">${icon}</div>
+
+        <h2>${ville}, ${pays}</h2>
+
+        <div class="temp">${current.temperature_2m}°C</div>
+
+        <div class="info">
+            💧 Humidité : ${current.relative_humidity_2m}%<br><br>
+            💨 Vent : ${current.wind_speed_10m} km/h
+        </div>
+
+    `;
+
+}
+
+</script>
+
+</body>
+</html>

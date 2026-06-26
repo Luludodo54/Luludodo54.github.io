@@ -1,238 +1,56 @@
-<!DOCTYPE html>
-<html lang="fr">
+<h1 class="Ludo">Salut</h1>
+<h2 class="Ludo">Regarde mes projet de météo</h2>
+<style>
+    .Ludo {
+        text-align: center;
+        color: red;
+        font-size: 50px;
+        font-family: Arial;
+    }
+</style>
+<style>
+body {
+    background-color: #e6ffe8;
+    text-align: center;
+    font-family: Arial;
+}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Météo</title>
+.btn {
+    display: inline-block;
+    padding: 20px 40px;
+    margin: 20px;
+    font-size: 20px;
+    color: white;
+    text-decoration: none;
+    border-radius: 15px;
+    transition: 0.3s;
+}
 
-    <link rel="stylesheet" href="style.css">
+.btn1 {
+    background-color: #28a745;
+}
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+.btn2 {
+    background-color: #007bff;
+}
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+.btn:hover {
+    transform: scale(1.1);
+}
+.mmpp {
+    display: inline-block;
+    margin-top: 50px;
+    font-size: 18px;
+    color: #333;
+    text-decoration: none;
+    border: 2px solid #333;
+    padding: 10px 20px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+</style>
 
 </head>
-
-<body>
-
-<div class="background"></div>
-
-<header>
-
-    <h1>🌤 Weather App</h1>
-
-    <div class="search">
-
-        <input
-            type="text"
-            id="city"
-            placeholder="Rechercher une ville..."
-            autocomplete="off">
-
-        <button id="searchBtn">
-            🔍
-        </button>
-
-        <div id="suggestions"></div>
-
-    </div>
-
-</header>
-
-<main>
-
-<section class="current-weather">
-
-    <div class="top">
-
-        <div>
-
-            <h2 id="cityName">
-                Paris
-            </h2>
-
-            <p id="date">
-                Lundi 25 Avril
-            </p>
-
-        </div>
-
-        <button id="favoriteBtn">
-            ⭐
-        </button>
-
-    </div>
-
-    <div class="weather-main">
-
-        <div class="icon">
-            ☀️
-        </div>
-
-        <div class="temperature">
-
-            <h1 id="temp">
-                22°
-            </h1>
-
-            <p id="description">
-                Ensoleillé
-            </p>
-
-        </div>
-
-    </div>
-
-</section>
-
-<section class="details">
-
-    <div class="card">
-
-        <span>🌡️</span>
-
-        <h3>Ressenti</h3>
-
-        <p id="feelsLike">
-            24°C
-        </p>
-
-    </div>
-
-    <div class="card">
-
-        <span>💧</span>
-
-        <h3>Humidité</h3>
-
-        <p id="humidity">
-            60%
-        </p>
-
-    </div>
-
-    <div class="card">
-
-        <span>💨</span>
-
-        <h3>Vent</h3>
-
-        <p id="wind">
-            14 km/h
-        </p>
-
-    </div>
-
-    <div class="card">
-
-        <span>🌧️</span>
-
-        <h3>Pluie</h3>
-
-        <p id="rain">
-            0 %
-        </p>
-
-    </div>
-
-    <div class="card">
-
-        <span>🌅</span>
-
-        <h3>Lever</h3>
-
-        <p id="sunrise">
-            06:41
-        </p>
-
-    </div>
-
-    <div class="card">
-
-        <span>🌇</span>
-
-        <h3>Coucher</h3>
-
-        <p id="sunset">
-            21:25
-        </p>
-
-    </div>
-
-</section>
-
-<section class="hourly">
-
-    <h2>
-        Prévisions heure par heure
-    </h2>
-
-    <div class="hourly-container">
-
-        <!-- Généré par JavaScript -->
-
-    </div>
-
-</section>
-
-<section class="forecast">
-
-    <h2>
-        Prévisions sur 7 jours
-    </h2>
-
-    <div class="forecast-container">
-
-        <!-- Généré par JavaScript -->
-
-    </div>
-
-</section>
-
-<section class="favorites">
-
-    <h2>
-        ⭐ Villes favorites
-    </h2>
-
-    <div id="favoriteCities">
-
-        <!-- Généré par JavaScript -->
-
-    </div>
-
-</section>
-
-<section class="map">
-
-    <h2>
-        📍 Localisation
-    </h2>
-
-    <div id="map">
-
-        Carte météo
-
-    </div>
-
-</section>
-
-</main>
-
-<footer>
-
-    <p>
-
-        Données météo fournies par
-        Open-Meteo
-
-    </p>
-
-</footer>
-
-<script src="script.js"></script>
-
-</body>
-</html>
+<title>Météo</title>
+<a href="1.0/meteo1.0.html" class="btn btn1">Météo 1.0</a>
+<a href="1.1/index.html" class="btn btn1">Météo 1.1</a>
