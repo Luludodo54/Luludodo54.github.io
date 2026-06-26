@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Traitement de texte</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</head>
+
+<body>
+
+<div class="toolbar">
+
+<select id="fontName">
+<option>Arial</option>
+<option>Calibri</option>
+<option>Verdana</option>
+<option>Georgia</option>
+<option>Tahoma</option>
+<option>Courier New</option>
+<option>Times New Roman</option>
+</select>
+
+<select id="fontSize">
+<option>12</option>
+<option>14</option>
+<option>16</option>
+<option>18</option>
+<option>20</option>
+<option>24</option>
+<option>28</option>
+<option>32</option>
+<option>40</option>
+<option>48</option>
+</select>
+
+<button onclick="cmd('bold')"><b>B</b></button>
+<button onclick="cmd('italic')"><i>I</i></button>
+<button onclick="cmd('underline')"><u>U</u></button>
+
+<button onclick="cmd('justifyLeft')">⬅</button>
+<button onclick="cmd('justifyCenter')">⬍</button>
+<button onclick="cmd('justifyRight')">➡</button>
+
+<button onclick="cmd('insertUnorderedList')">• Liste</button>
+
+<input type="color" id="textColor">
+
+<input type="color" id="highlight">
+
+<button id="undo">↶</button>
+<button id="redo">↷</button>
+
+<button id="exportPdf">PDF</button>
+<button id="exportJson">JSON</button>
+
+<input type="file" id="importJson">
+
+</div>
+
+<div id="editor" contenteditable="true">
+
+<h1>Mon document</h1>
+
+<p>Commencez à écrire...</p>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
