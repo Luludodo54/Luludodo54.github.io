@@ -1,40 +1,59 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Creative Setup Pro</title>
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Setup Pro</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
 
-<header class="hero">
-    <h1>CRÉE COMME UN PRO</h1>
-    <p>Adobe + Yoga Slim 7 + KOORUI = Setup créateur complet</p>
+    <div id="particles-container"></div>
 
-    <a class="btn" href="pricing.html">Voir les offres</a>
-    <a class="btn" href="faq.html">FAQ</a>
-</header>
+    <header class="hero">
+        <div class="hero-content">
+            <h1 class="glitch-text" data-value="CRÉE COMME UN PRO">CRÉE COMME UN PRO</h1>
+            <p class="subtitle">Adobe + Yoga Slim 7 + KOORUI = Setup créateur complet</p>
+            <div class="cta-buttons">
+                <a class="btn btn-primary" href="pricing.html">
+                    <span>Voir les offres</span>
+                </a>
+                <a class="btn btn-secondary" href="faq.html">
+                    <span>FAQ</span>
+                </a>
+            </div>
+        </div>
+    </header>
 
-<section class="grid reveal">
+    <section class="grid">
+        <div class="card reveal" style="--delay: 1;">
+            <div class="card-border-glow"></div>
+            <div class="card-content">
+                <div class="card-icon">🎓</div>
+                <h2>Étudiants / Profs</h2>
+                <p>Réduction sur Adobe Creative Cloud selon statut vérifié.</p>
+            </div>
+        </div>
 
-    <div class="card">
-        <h2>🎓 Étudiants / Professeurs</h2>
-        <p>Réduction sur Adobe Creative Cloud selon statut vérifié.</p>
-    </div>
+        <div class="card reveal" style="--delay: 2;">
+            <div class="card-border-glow"></div>
+            <div class="card-content">
+                <div class="card-icon">⚡</div>
+                <h2>Yoga Slim 7</h2>
+                <p>Ryzen 5 4500U &rarr; montage 1080p fluide et rapide.</p>
+            </div>
+        </div>
 
-    <div class="card">
-        <h2>⚡ Yoga Slim 7</h2>
-        <p>Ryzen 5 4500U → montage 1080p fluide et rapide.</p>
-    </div>
+        <div class="card reveal" style="--delay: 3;">
+            <div class="card-border-glow"></div>
+            <div class="card-content">
+                <div class="card-icon">🖥</div>
+                <h2>KOORUI G2511P</h2>
+                <p>Plus de confort et productivité dans Premiere Pro.</p>
+            </div>
+        </div>
+    </section>
 
-    <div class="card">
-        <h2>🖥 KOORUI G2511P</h2>
-        <p>Plus de confort et productivité dans Premiere Pro.</p>
-    </div>
-
-</section>
-
-<script src="js/animations.js"></script>
+    <script src="js/animations.js"></script>
 </body>
 </html>
