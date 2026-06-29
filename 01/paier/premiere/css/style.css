@@ -1,0 +1,38 @@
+body {
+    background: #050505;
+    cursor: none; /* Cache le curseur natif */
+    margin: 0;
+    height: 100vh;
+}
+
+/* Le point central */
+.cursor-dot {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* L'aura néon */
+.cursor-aura {
+    position: fixed;
+    width: 50px;
+    height: 50px;
+    border: 2px solid #00f2fe;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    box-shadow: 0 0 20px #00f2fe;
+    transition: width 0.3s, height 0.3s;
+}
+
+/* Animation de grossissement au survol */
+.hovered {
+    width: 80px;
+    height: 80px;
+    border-color: #ff00ff;
+    box-shadow: 0 0 40px #ff00ff;
+}
