@@ -10,8 +10,53 @@ body {
     position: fixed;
     width: 8px;
     height: 8px;
-    background: #fff;
-    border-radius: 50%;
+    background: #fff;:root {
+    --neon: #00f2fe;
+    --bg: #050505;
+}
+
+body {
+    background: var(--bg);
+    color: #ffffff; /* Texte en blanc pour être visible */
+    font-family: 'Segoe UI', sans-serif;
+    cursor: none;
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* Texte visible */
+h1 { font-size: 3rem; color: #fff; margin-bottom: 20px; }
+p { color: #ccc; line-height: 1.6; }
+
+/* Boutons */
+.btn {
+    display: inline-block;
+    padding: 15px 30px;
+    background: transparent;
+    border: 2px solid var(--neon);
+    color: var(--neon);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: var(--neon);
+    color: #000;
+}
+
+/* Curseur (Le même qui marche) */
+.cursor-dot {
+    position: fixed; width: 8px; height: 8px; background: #fff;
+    border-radius: 50%; pointer-events: none; z-index: 9999;
+}
+
+.cursor-aura {
+    position: fixed; width: 50px; height: 50px;
+    border: 2px solid var(--neon); border-radius: 50%;
+    pointer-events: none; z-index: 9998;
+    transition: transform 0.1s ease-out;
+}
     pointer-events: none;
     z-index: 9999;
 }
