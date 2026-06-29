@@ -31,3 +31,13 @@ document.querySelectorAll('a').forEach(el => {
     el.addEventListener('mouseover', () => aura.classList.add('hovered'));
     el.addEventListener('mouseout', () => aura.classList.remove('hovered'));
 });
+// Interaction sur le menu
+const navLinks = document.querySelectorAll('nav a');
+navLinks.forEach(link => {
+    link.addEventListener('mouseenter', () => {
+        aura.style.transform += ' scale(2)';
+    });
+    link.addEventListener('mouseleave', () => {
+        aura.style.transform = aura.style.transform.replace(' scale(2)', '');
+    });
+});
