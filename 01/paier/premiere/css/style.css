@@ -11,7 +11,7 @@ body {
     width: 8px;
     height: 8px;
     background: #fff;:root {
-    --neon: #00f2fe;
+    --neon: #d9ff00;
     --bg: #050505;
 }
 
@@ -87,7 +87,7 @@ nav a { color: #fff; text-decoration: none; font-weight: bold; }
 
 /* Grille Avantages */
 .grid-avantages { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; padding: 40px; }
-.card { background: #111; padding: 30px; border: 1px solid #333; border-radius: 15px; transition: 0.3s; }
+.card { background: #ffffff; padding: 30px; border: 1px solid #333; border-radius: 15px; transition: 0.3s; }
 .card:hover { border-color: var(--neon); transform: translateY(-10px); }
 
 /* Spécifications */
