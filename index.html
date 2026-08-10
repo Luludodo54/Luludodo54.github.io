@@ -3,104 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfert de fichiers</title>
+
+    <title>DropLink - Transfert de fichiers</title>
 
     <style>
         * {
             box-sizing: border-box;
         }
 
+        :root {
+            font-family: Inter, Arial, sans-serif;
+        }
+
         body {
             margin: 0;
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-family: Arial, sans-serif;
-            background: #0f1115;
-            color: white;
+            justify-content: center;
+            padding: 20px;
+
+            background:
+                radial-gradient(circle at 10% 10%, #5865f233, transparent 35%),
+                radial-gradient(circle at 90% 90%, #00b7ff22, transparent 35%),
+                #080a0f;
+
+            color: #ffffff;
         }
 
         .container {
-            width: 90%;
-            max-width: 550px;
-            padding: 35px;
-            background: #191c22;
-            border-radius: 20px;
+            width: 100%;
+            max-width: 620px;
+            padding: 42px;
+
+            background: rgba(20, 23, 31, 0.94);
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
+
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,.4);
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+
+            margin: 0 auto 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 18px;
+
+            background: #ffffff;
+            color: #090a0e;
+
+            font-size: 26px;
+            font-weight: 800;
         }
 
         h1 {
-            margin-top: 0;
+            margin: 0;
+
+            font-size: 34px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            margin: 10px 0 30px;
+
+            color: #9ca3af;
+            font-size: 15px;
         }
 
         .drop-zone {
-            border: 2px dashed #555;
-            border-radius: 15px;
-            padding: 40px 20px;
-            margin: 25px 0;
+            min-height: 220px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            padding: 30px;
+
+            border: 2px dashed #3b4252;
+            border-radius: 22px;
+
+            background: #11141b;
+
             cursor: pointer;
-            transition: .2s;
+
+            transition: 0.2s;
         }
 
-        .drop-zone:hover {
-            border-color: #888;
-            background: #20242b;
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: #7280ff;
+            background: #151927;
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        .drop-title {
+            color: #ffffff;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .drop-subtitle {
+            margin-top: 7px;
+            color: #7f8795;
+            font-size: 13px;
         }
 
         #fileInput {
             display: none;
         }
 
-        button {
-            border: none;
-            border-radius: 10px;
-            padding: 13px 25px;
-            font-size: 16px;
-            cursor: pointer;
+        #selectedFile {
+            display: none;
+
+            margin-top: 15px;
+            padding: 12px;
+
+            border-radius: 12px;
+
+            background: #191d26;
+            border: 1px solid #292f3b;
+
+            color: #cbd5e1;
+
+            word-break: break-all;
         }
 
         #uploadBtn {
-            background: white;
-            color: black;
+            width: 100%;
+
+            margin-top: 20px;
+            padding: 15px;
+
+            border: none;
+            border-radius: 14px;
+
+            background: #ffffff;
+            color: #090a0e;
+
+            font-size: 16px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.15s;
+        }
+
+        #uploadBtn:hover:not(:disabled) {
+            transform: translateY(-2px);
         }
 
         #uploadBtn:disabled {
-            opacity: .5;
+            opacity: 0.35;
             cursor: not-allowed;
+        }
+
+        .progress-container {
+            display: none;
+            margin-top: 22px;
         }
 
         progress {
             width: 100%;
-            margin-top: 20px;
+            height: 8px;
+
+            appearance: none;
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        progress::-webkit-progress-bar {
+            background: #292d36;
+        }
+
+        progress::-webkit-progress-value {
+            background: #7280ff;
+            border-radius: 10px;
+        }
+
+        progress::-moz-progress-bar {
+            background: #7280ff;
+            border-radius: 10px;
+        }
+
+        #progressText {
+            margin-top: 8px;
+
+            color: #8d96a5;
+            font-size: 13px;
         }
 
         #result {
             margin-top: 25px;
         }
 
+        .success {
+            color: #72e6a1;
+            font-weight: 600;
+        }
+
+        .error {
+            padding: 14px;
+
+            border: 1px solid #ff4d4d33;
+            border-radius: 12px;
+
+            background: #ff4d4d14;
+            color: #ff7777;
+
+            font-size: 14px;
+        }
+
         .link {
-            display: block;
             margin: 15px 0;
-            padding: 12px;
-            background: #101217;
-            border-radius: 10px;
-            color: #7db7ff;
+            padding: 15px;
+
+            border: 1px solid #252a34;
+            border-radius: 13px;
+
+            background: #0c0f14;
+
+            color: #7f9cff;
+
+            font-size: 14px;
+            text-align: left;
+
             word-break: break-all;
         }
 
         .copy {
-            background: #30343c;
-            color: white;
+            width: 100%;
+
+            padding: 13px;
+
+            border: 1px solid #343a47;
+            border-radius: 12px;
+
+            background: #20242d;
+            color: #ffffff;
+
+            font-weight: 600;
+
+            cursor: pointer;
         }
 
-        .error {
-            color: #ff7070;
+        .copy:hover {
+            background: #2a303b;
         }
 
-        .success {
-            color: #7dff9b;
+        .info {
+            margin-top: 25px;
+
+            color: #626b7a;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px 18px;
+                border-radius: 22px;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+
+            .drop-zone {
+                min-height: 180px;
+            }
         }
     </style>
 </head>
@@ -109,74 +294,153 @@
 
 <div class="container">
 
-    <h1>Transfert de fichiers</h1>
+    <div class="logo">↑</div>
 
-    <p>Envoie un fichier et obtiens un lien.</p>
+    <h1>DropLink</h1>
+
+    <p class="subtitle">
+        Envoyez un fichier et obtenez un lien de téléchargement.
+    </p>
 
     <label class="drop-zone" id="dropZone">
-        <span id="fileText">
-            Clique ici pour sélectionner un fichier
-        </span>
 
-        <input type="file" id="fileInput">
+        <div class="upload-icon">📁</div>
+
+        <div class="drop-title">
+            Cliquez pour choisir un fichier
+        </div>
+
+        <div class="drop-subtitle">
+            ou glissez-déposez votre fichier ici
+        </div>
+
+        <input
+            type="file"
+            id="fileInput"
+        >
+
     </label>
+
+    <div id="selectedFile"></div>
 
     <button id="uploadBtn" disabled>
         Envoyer le fichier
     </button>
 
-    <progress id="progress" value="0" max="100" hidden></progress>
+    <div
+        class="progress-container"
+        id="progressContainer"
+    >
+
+        <progress
+            id="progress"
+            value="0"
+            max="100"
+        ></progress>
+
+        <div id="progressText">
+            0%
+        </div>
+
+    </div>
 
     <div id="result"></div>
+
+    <div class="info">
+        Les fichiers sont stockés sur le serveur.
+    </div>
 
 </div>
 
 <script>
 
 const fileInput = document.getElementById("fileInput");
-const fileText = document.getElementById("fileText");
-const uploadBtn = document.getElementById("uploadBtn");
-const progress = document.getElementById("progress");
-const result = document.getElementById("result");
 const dropZone = document.getElementById("dropZone");
+const selectedFile = document.getElementById("selectedFile");
+const uploadBtn = document.getElementById("uploadBtn");
+
+const progressContainer =
+    document.getElementById("progressContainer");
+
+const progress =
+    document.getElementById("progress");
+
+const progressText =
+    document.getElementById("progressText");
+
+const result =
+    document.getElementById("result");
+
 
 fileInput.addEventListener("change", () => {
 
     if (fileInput.files.length > 0) {
 
-        const file = fileInput.files[0];
-
-        fileText.textContent =
-            file.name + " (" + formatSize(file.size) + ")";
-
-        uploadBtn.disabled = false;
+        showSelectedFile(
+            fileInput.files[0]
+        );
     }
 });
 
+
+function showSelectedFile(file) {
+
+    selectedFile.style.display = "block";
+
+    selectedFile.textContent =
+        "📄 " +
+        file.name +
+        " • " +
+        formatSize(file.size);
+
+    uploadBtn.disabled = false;
+
+    result.innerHTML = "";
+}
+
+
 dropZone.addEventListener("dragover", (event) => {
+
     event.preventDefault();
+
+    dropZone.classList.add("dragover");
 });
+
+
+dropZone.addEventListener("dragleave", () => {
+
+    dropZone.classList.remove("dragover");
+});
+
 
 dropZone.addEventListener("drop", (event) => {
 
     event.preventDefault();
 
+    dropZone.classList.remove("dragover");
+
     if (event.dataTransfer.files.length > 0) {
 
-        fileInput.files = event.dataTransfer.files;
+        const file =
+            event.dataTransfer.files[0];
 
-        const file = fileInput.files[0];
+        showSelectedFile(file);
 
-        fileText.textContent =
-            file.name + " (" + formatSize(file.size) + ")";
+        const dataTransfer =
+            new DataTransfer();
 
-        uploadBtn.disabled = false;
+        dataTransfer.items.add(file);
+
+        fileInput.files =
+            dataTransfer.files;
     }
 });
 
-uploadBtn.addEventListener("click", upload);
 
-function upload() {
+uploadBtn.addEventListener("click", uploadFile);
+
+
+function uploadFile() {
 
     const file = fileInput.files[0];
 
@@ -188,104 +452,225 @@ function upload() {
 
     formData.append("file", file);
 
-    result.innerHTML = "";
-    progress.hidden = false;
-    progress.value = 0;
     uploadBtn.disabled = true;
+
+    progressContainer.style.display =
+        "block";
+
+    progress.value = 0;
+
+    progressText.textContent =
+        "Préparation...";
+
+    result.innerHTML = "";
 
     const xhr = new XMLHttpRequest();
 
-    xhr.open("POST", "upload.php");
+    xhr.open(
+        "POST",
+        "upload.php",
+        true
+    );
 
-    xhr.upload.addEventListener("progress", (event) => {
+    xhr.upload.addEventListener(
+        "progress",
+        (event) => {
 
-        if (event.lengthComputable) {
+            if (event.lengthComputable) {
 
-            progress.value =
-                (event.loaded / event.total) * 100;
+                const percent =
+                    Math.round(
+                        (event.loaded /
+                        event.total) * 100
+                    );
+
+                progress.value =
+                    percent;
+
+                progressText.textContent =
+                    "Envoi : " +
+                    percent +
+                    "%";
+            }
         }
-    });
+    );
+
 
     xhr.addEventListener("load", () => {
 
         uploadBtn.disabled = false;
 
+        if (xhr.status < 200 ||
+            xhr.status >= 300) {
+
+            showError(
+                "Le serveur a renvoyé l'erreur HTTP " +
+                xhr.status
+            );
+
+            return;
+        }
+
+        let data;
+
         try {
 
-            const data = JSON.parse(xhr.responseText);
+            data =
+                JSON.parse(xhr.responseText);
 
-            if (!data.success) {
+        } catch (error) {
 
-                result.innerHTML =
-                    `<p class="error">${escapeHtml(data.error)}</p>`;
+            console.error(
+                "Réponse serveur :",
+                xhr.responseText
+            );
 
-                return;
-            }
+            showError(
+                "Le serveur n'a pas renvoyé une réponse valide."
+            );
 
-            result.innerHTML = `
-
-                <p class="success">
-                    Fichier envoyé !
-                </p>
-
-                <div class="link" id="fileLink">
-                    ${escapeHtml(data.url)}
-                </div>
-
-                <button class="copy" onclick="copyLink('${data.url}')">
-                    Copier le lien
-                </button>
-            `;
-
-        } catch {
-
-            result.innerHTML =
-                `<p class="error">
-                    Réponse invalide du serveur.
-                </p>`;
+            return;
         }
+
+
+        if (!data.success) {
+
+            showError(
+                data.error ||
+                "Erreur inconnue."
+            );
+
+            return;
+        }
+
+
+        progress.value = 100;
+
+        progressText.textContent =
+            "Envoi terminé !";
+
+
+        result.innerHTML = `
+
+            <p class="success">
+                ✓ Fichier envoyé avec succès
+            </p>
+
+            <div class="link">
+                ${escapeHtml(data.url)}
+            </div>
+
+            <button
+                class="copy"
+                id="copyBtn"
+            >
+                Copier le lien
+            </button>
+        `;
+
+
+        document
+            .getElementById("copyBtn")
+            .addEventListener(
+                "click",
+                () => copyLink(data.url)
+            );
+
     });
+
 
     xhr.addEventListener("error", () => {
 
         uploadBtn.disabled = false;
 
-        result.innerHTML =
-            `<p class="error">
-                Impossible de contacter le serveur.
-            </p>`;
+        showError(
+            "Impossible de contacter le serveur."
+        );
     });
+
+
+    xhr.addEventListener("timeout", () => {
+
+        uploadBtn.disabled = false;
+
+        showError(
+            "Le délai d'attente est dépassé."
+        );
+    });
+
 
     xhr.send(formData);
 }
 
-function copyLink(url) {
 
-    navigator.clipboard.writeText(url);
+async function copyLink(url) {
 
-    result.querySelector(".copy").textContent =
-        "Lien copié !";
+    try {
+
+        await navigator.clipboard.writeText(url);
+
+        const button =
+            document.getElementById("copyBtn");
+
+        button.textContent =
+            "✓ Lien copié !";
+
+    } catch {
+
+        alert(
+            "Impossible de copier automatiquement le lien."
+        );
+    }
 }
+
+
+function showError(message) {
+
+    result.innerHTML = "";
+
+    const error =
+        document.createElement("div");
+
+    error.className = "error";
+
+    error.textContent =
+        message;
+
+    result.appendChild(error);
+}
+
 
 function formatSize(bytes) {
 
-    if (bytes < 1024)
+    if (bytes < 1024) {
         return bytes + " octets";
+    }
 
-    if (bytes < 1024 * 1024)
-        return (bytes / 1024).toFixed(1) + " Ko";
+    if (bytes < 1024 * 1024) {
+        return (
+            bytes / 1024
+        ).toFixed(1) + " Ko";
+    }
 
-    if (bytes < 1024 * 1024 * 1024)
-        return (bytes / 1024 / 1024).toFixed(1) + " Mo";
+    if (bytes < 1024 * 1024 * 1024) {
+        return (
+            bytes / 1024 / 1024
+        ).toFixed(1) + " Mo";
+    }
 
-    return (bytes / 1024 / 1024 / 1024).toFixed(1) + " Go";
+    return (
+        bytes / 1024 / 1024 / 1024
+    ).toFixed(1) + " Go";
 }
+
 
 function escapeHtml(text) {
 
-    const div = document.createElement("div");
+    const div =
+        document.createElement("div");
 
-    div.textContent = text;
+    div.textContent =
+        text;
 
     return div.innerHTML;
 }

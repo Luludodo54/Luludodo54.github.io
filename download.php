@@ -1,51 +1,103 @@
 <?php
 
-if (!isset($_GET["id"])) {
+if (!isset($_GET['id'])) {
+
     http_response_code(400);
-    exit("Lien invalide.");
+
+    exit('Lien invalide.');
 }
 
-$id = $_GET["id"];
 
-if (!preg_match("/^[a-f0-9]{16}$/", $id)) {
+$id = $_GET['id'];
+
+
+if (!preg_match(
+    '/^[a-f0-9]{24}$/',
+    $id
+)) {
+
     http_response_code(400);
-    exit("Lien invalide.");
+
+    exit('Lien invalide.');
 }
 
-$uploadDir = __DIR__ . "/uploads/";
 
-$files = glob($uploadDir . $id . ".*");
+$uploadDir =
+    __DIR__ .
+    DIRECTORY_SEPARATOR .
+    'uploads';
+
+
+$files =
+    glob(
+        $uploadDir .
+        DIRECTORY_SEPARATOR .
+        $id .
+        '.*'
+    );
+
 
 if (!$files || count($files) === 0) {
+
     http_response_code(404);
-    exit("Fichier introuvable.");
+
+    exit('Fichier introuvable.');
 }
+
 
 $file = $files[0];
 
-$extension = pathinfo(
-    $file,
-    PATHINFO_EXTENSION
-);
 
-$downloadName = "fichier";
+if (!is_file($file)) {
 
-if ($extension !== "") {
-    $downloadName .= "." . $extension;
+    http_response_code(404);
+
+    exit('Fichier introuvable.');
 }
 
-header("Content-Type: application/octet-stream");
+
+$extension =
+    pathinfo(
+        $file,
+        PATHINFO_EXTENSION
+    );
+
+
+$downloadName =
+    'fichier';
+
+
+if ($extension !== '') {
+
+    $downloadName .=
+        '.' .
+        $extension;
+}
+
 
 header(
-    "Content-Disposition: attachment; filename=\"" .
-    basename($downloadName) .
-    "\""
+    'Content-Type: application/octet-stream'
 );
 
+
 header(
-    "Content-Length: " .
+    'Content-Disposition: attachment; filename="' .
+    $downloadName .
+    '"'
+);
+
+
+header(
+    'Content-Length: ' .
     filesize($file)
 );
 
+
+header(
+    'Cache-Control: no-cache, no-store, must-revalidate'
+);
+
+
 readfile($file);
+
 exit;
